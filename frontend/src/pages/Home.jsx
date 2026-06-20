@@ -288,27 +288,30 @@ export default function Home({ onResults }) {
               >
                 <motion.button
                   onClick={() => setShowForm(true)}
-                  className="btn-primary text-[17px] px-10 min-h-[58px] group w-full sm:w-auto relative overflow-hidden"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="btn-primary text-[17px] px-10 min-h-[58px] group w-full sm:w-auto relative overflow-hidden ripple-effect"
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     {fil ? 'Simulan ang Pagsusuri' : 'Check My Eligibility'}
-                    <ArrowRight size={20} className="transition-transform duration-300 group-hover:translate-x-1" />
+                    <ArrowRight size={20} className="transition-all duration-300 group-hover:translate-x-1.5" />
                   </span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-blue-600 to-violet-600 opacity-0"
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 shimmer" />
                 </motion.button>
                 <motion.button
-                  onClick={() => setShowForm(true)}
+                  onClick={() => {
+                    const el = document.querySelector('.hero-visual-card')
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                  }}
                   className="btn-secondary text-[17px] px-8 min-h-[58px] w-full sm:w-auto"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileTap={{ scale: 0.97 }}
                 >
-                  {fil ? 'Magsimula' : 'Get Started'}
+                  <span className="flex items-center gap-2">
+                    {fil ? 'Paano Ito Gumagana' : 'How It Works'}
+                    <ChevronRight size={18} className="text-secondary group-hover:translate-x-0.5 transition-transform" />
+                  </span>
                 </motion.button>
               </motion.div>
 
