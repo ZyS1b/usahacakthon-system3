@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Bot, User, Send, Sparkles, Shield, ClipboardList, ArrowRight,
   Copy, Check, Trash2, AlertCircle, Clock, ChevronDown,
-  MessageSquare, Zap, Heart
+  MessageSquare, Zap, Heart, ChevronLeft, ChevronRight
 } from 'lucide-react'
 import { chatWithAI } from '../utils/api'
 import { useLanguage } from '../context/LanguageContext'
@@ -77,6 +77,7 @@ export default function ChatPage({ onCheckEligibility }) {
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
   const chatContainerRef = useRef(null)
+  const promptsRef = useRef(null)
   const [showScrollDown, setShowScrollDown] = useState(false)
 
   const quickPrompts = fil ? QUICK_PROMPTS_FIL : QUICK_PROMPTS_EN
@@ -106,6 +107,12 @@ export default function ChatPage({ onCheckEligibility }) {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const scrollPrompts = (direction) => {
+    const el = promptsRef.current
+    if (!el) return
+    el.scrollBy({ left: direction * 220, behavior: 'smooth' })
   }
 
   const handleSend = async (text) => {
@@ -212,53 +219,55 @@ export default function ChatPage({ onCheckEligibility }) {
   const isWelcome = messages.length === 1
 
   return (
-    <div className="h-[calc(100vh-64px)] flex flex-col bg-zinc-50 text-zinc-800 font-sans">
+    <div className="relative h-[calc(100vh-64px)] flex flex-col bg-gradient-to-b from-slate-50 via-white to-blue-50/20 text-slate-800 font-sans overflow-hidden">
 
       {/* ─── Header ─── */}
-      <header className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-200/60 bg-white/80 backdrop-blur-md flex-shrink-0 sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center shadow-md shadow-blue-500/20">
-            <Sparkles size={16} className="text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-semibold text-lg tracking-tight text-zinc-900">TulongAI</h1>
-              <span className="text-[10px] bg-zinc-100 text-zinc-500 px-2 py-0.5 rounded-full font-medium">BETA</span>
+      <header className="flex-shrink-0 border-b border-slate-200/70 bg-white/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20 flex-shrink-0">
+              <Sparkles size={16} className="text-white" />
             </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <p className="text-[11px] text-zinc-400 font-medium">{fil ? 'Online • Handang tumulong' : 'Online • Ready to help'}</p>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="font-semibold text-lg tracking-tight text-slate-950">TulongAI</h1>
+                <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-medium">BETA</span>
+              </div>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <p className="text-[11px] text-slate-500 font-medium truncate">{fil ? 'Online • Handang tumulong' : 'Online • Ready to help'}</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          {!isWelcome && (
-            <motion.button
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              onClick={clearChat}
-              className="w-9 h-9 rounded-lg bg-zinc-100 text-zinc-400 flex items-center justify-center hover:bg-zinc-200 hover:text-zinc-600 transition-colors"
-              aria-label={fil ? 'Burahin ang usapan' : 'Clear chat'}
-              title={fil ? 'Burahin ang usapan' : 'Clear conversation'}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {!isWelcome && (
+              <motion.button
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                onClick={clearChat}
+                className="w-9 h-9 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 hover:text-slate-700 transition-colors"
+                aria-label={fil ? 'Burahin ang usapan' : 'Clear chat'}
+                title={fil ? 'Burahin ang usapan' : 'Clear conversation'}
+              >
+                <Trash2 size={15} />
+              </motion.button>
+            )}
+            <button
+              onClick={onCheckEligibility}
+              className="flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 active:scale-95 transition-all"
             >
-              <Trash2 size={15} />
-            </motion.button>
-          )}
-          <button
-            onClick={onCheckEligibility}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 active:scale-95 transition-all"
-          >
-            <ClipboardList size={16} />
-            <span className="hidden sm:inline">{fil ? 'Suriin ang Eligibility' : 'Check Eligibility'}</span>
-          </button>
+              <ClipboardList size={16} />
+              <span className="hidden sm:inline">{fil ? 'Eligibility Guide' : 'Eligibility Guide'}</span>
+            </button>
+          </div>
         </div>
       </header>
 
       {/* ─── Message Stream ─── */}
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"
+        className="chat-scroll flex-1 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.07),transparent_34%)] px-4 sm:px-6 lg:px-8 py-5 space-y-2 scroll-smooth"
       >
         {/* Welcome Features */}
         {isWelcome && (
@@ -299,17 +308,11 @@ export default function ChatPage({ onCheckEligibility }) {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-              className={`group flex gap-4 items-start px-4 py-3 -mx-2 rounded-xl transition-colors ${
-                isError
-                  ? 'bg-red-50/60 hover:bg-red-50/80'
-                  : isUser
-                    ? 'hover:bg-white/50'
-                    : 'bg-zinc-50/50 hover:bg-zinc-100/60'
-              }`}
+              className={`group mx-auto flex w-full max-w-4xl gap-3 px-1 py-2 snap-start ${isUser ? 'justify-end' : 'justify-start'}`}
             >
               {/* Avatar */}
               <div
-                className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isUser ? 'order-2' : ''} ${
                   isUser
                     ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
                     : isError
@@ -321,19 +324,19 @@ export default function ChatPage({ onCheckEligibility }) {
               </div>
 
               {/* Message Content */}
-              <div className="flex-1 min-w-0 space-y-1.5">
+              <div className={`flex min-w-0 max-w-[82%] flex-col space-y-1.5 ${isUser ? 'items-end text-right' : 'items-start text-left'}`}>
                 {/* Sender label */}
-                <p className="text-xs font-semibold text-zinc-400 select-none">
+                <p className={`text-xs font-semibold text-zinc-400 select-none ${isUser ? 'pr-2' : 'pl-2'}`}>
                   {isUser ? (fil ? 'Ikaw' : 'You') : isError ? (fil ? 'Error' : 'Error') : 'TulongAI'}
                 </p>
 
                 {/* Bubble */}
-                <div className={`text-sm leading-relaxed ${
+                <div className={`rounded-3xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
                   isError
-                    ? 'text-red-700'
+                    ? 'border border-red-100 bg-red-50 text-red-700'
                     : isUser
-                      ? 'text-zinc-800'
-                      : 'text-zinc-700'
+                      ? 'rounded-br-md bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-blue-600/20'
+                      : 'rounded-bl-md border border-zinc-200/80 bg-white text-zinc-700'
                 }`}>
                   {isUser || isError ? (
                     <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -364,7 +367,7 @@ export default function ChatPage({ onCheckEligibility }) {
                 </div>
 
                 {/* Footer: timestamp + copy */}
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className={`flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${isUser ? 'justify-end pr-2' : 'justify-start pl-2'}`}>
                   <span className="text-[10px] text-zinc-400 flex items-center gap-1 select-none">
                     <Clock size={10} />
                     {formatTime(msg.timestamp)}
@@ -389,14 +392,14 @@ export default function ChatPage({ onCheckEligibility }) {
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex gap-4 items-start px-4 py-3"
+            className="mx-auto flex w-full max-w-4xl gap-3 px-1 py-2 snap-start"
           >
-            <div className="w-8 h-8 rounded-lg bg-white border border-zinc-200/80 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-white border border-zinc-200/80 flex items-center justify-center flex-shrink-0 shadow-sm">
               <Bot size={14} className="text-blue-600" />
             </div>
-            <div className="space-y-1.5 flex-1">
-              <p className="text-xs font-semibold text-zinc-400">TulongAI</p>
-              <div className="flex gap-1.5 py-1">
+            <div className="flex min-w-0 max-w-[82%] flex-col items-start space-y-1.5">
+              <p className="pl-2 text-xs font-semibold text-zinc-400">TulongAI</p>
+              <div className="rounded-3xl rounded-bl-md border border-zinc-200/80 bg-white px-4 py-3 shadow-sm flex gap-1.5">
                 <span className="w-2 h-2 bg-zinc-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                 <span className="w-2 h-2 bg-zinc-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-2 h-2 bg-zinc-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -438,30 +441,46 @@ export default function ChatPage({ onCheckEligibility }) {
 
       {/* Quick Prompts */}
       {isWelcome && (
-        <div className="px-4 sm:px-6 lg:px-8 py-4 bg-white border-t border-zinc-200/60 flex-shrink-0">
-          <p className="text-center text-[11px] text-zinc-400 font-semibold tracking-wide uppercase mb-3">
-            {fil ? 'Mga Mungkahing Tanong' : 'Suggested Questions'}
-          </p>
-          <div className="flex flex-wrap gap-2 max-w-3xl mx-auto justify-center">
-            {quickPrompts.map((prompt, i) => (
-              <button
-                key={i}
-                onClick={() => handleSend(prompt.text)}
-                disabled={loading}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white border border-zinc-200 text-sm text-zinc-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50/50 transition-all shadow-sm hover:shadow-md group disabled:opacity-50"
-              >
-                <span className="text-base">{prompt.icon}</span>
-                <span>{prompt.text}</span>
-                <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-500 ml-1" />
-              </button>
-            ))}
+        <div className="px-4 sm:px-6 lg:px-8 py-3 bg-white/95 border-t border-zinc-200/60 flex-shrink-0">
+          <div className="max-w-4xl mx-auto flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => scrollPrompts(-1)}
+              className="hidden sm:flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-500 shadow-sm hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50 transition-all"
+              aria-label={fil ? 'Nakaraang tanong' : 'Previous suggested question'}
+            >
+              <ChevronLeft size={15} />
+            </button>
+            <div ref={promptsRef} className="no-scrollbar flex-1 overflow-x-auto scroll-smooth">
+              <div className="flex gap-1.5 whitespace-nowrap justify-start sm:justify-center min-w-max sm:min-w-0">
+                {quickPrompts.slice(0, 6).map((prompt, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleSend(prompt.text)}
+                    disabled={loading}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white border border-zinc-200 text-[11px] leading-none text-zinc-600 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50/70 transition-all shadow-sm group disabled:opacity-50"
+                  >
+                    <span className="text-xs">{prompt.icon}</span>
+                    <span>{prompt.text}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => scrollPrompts(1)}
+              className="hidden sm:flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-500 shadow-sm hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50 transition-all"
+              aria-label={fil ? 'Susunod na tanong' : 'Next suggested question'}
+            >
+              <ChevronRight size={15} />
+            </button>
           </div>
         </div>
       )}
 
       {/* ─── Floating Footer Input ─── */}
-      <footer className="p-4 bg-gradient-to-t from-zinc-50 via-zinc-50 to-transparent sticky bottom-0">
-        <div className="max-w-3xl mx-auto relative bg-white border border-zinc-200 shadow-lg rounded-2xl p-2 flex items-center gap-2 focus-within:border-zinc-300 focus-within:ring-1 focus-within:ring-zinc-300/50 transition-all">
+      <footer className="p-4 bg-gradient-to-t from-blue-50/60 via-white to-transparent flex-shrink-0">
+        <div className="max-w-4xl mx-auto relative bg-white border border-zinc-200 shadow-lg rounded-2xl p-2 flex items-center gap-2 focus-within:border-zinc-300 focus-within:ring-1 focus-within:ring-zinc-300/50 transition-all">
           <textarea
             ref={inputRef}
             value={input}
@@ -482,13 +501,13 @@ export default function ChatPage({ onCheckEligibility }) {
           <button
             onClick={() => handleSend()}
             disabled={!input.trim() || loading}
-            className="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105 active:scale-95 transition-all flex-shrink-0 shadow-sm shadow-blue-500/20"
+            className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:scale-105 active:scale-95 transition-all flex-shrink-0 shadow-sm shadow-blue-500/20"
             aria-label="Send message"
           >
             <Send size={16} />
           </button>
         </div>
-        <div className="flex items-center justify-center gap-4 mt-3 max-w-3xl mx-auto">
+        <div className="flex items-center justify-center gap-4 mt-3 max-w-4xl mx-auto">
           <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
             <Shield size={11} className="text-emerald-500" />
             <span>{fil ? 'Kumpidensyal at ligtas' : 'Private & secure'}</span>

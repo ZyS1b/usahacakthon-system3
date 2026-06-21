@@ -7,12 +7,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#FAFBFC',
+        bg: '#F3F7FB',
         surface: '#FFFFFF',
         'surface-glass': 'rgba(255,255,255,0.72)',
         primary: {
-          DEFAULT: '#007AFF',
-          hover: '#0066D6',
+          DEFAULT: '#1D4ED8',
+          hover: '#1E40AF',
           light: 'rgba(0,122,255,0.08)',
           50: 'rgba(0,122,255,0.05)',
         },
@@ -29,12 +29,12 @@ export default {
           light: 'rgba(255,59,48,0.08)',
         },
         violet: {
-          DEFAULT: '#5856D6',
+          DEFAULT: '#4338CA',
           light: 'rgba(88,86,214,0.08)',
         },
-        ink: '#1D1D1F',
-        secondary: '#86868B',
-        muted: '#AEAEB2',
+        ink: '#0F172A',
+        secondary: '#475569',
+        muted: '#94A3B8',
         border: 'rgba(0,0,0,0.08)',
         'border-light': 'rgba(0,0,0,0.05)',
       },

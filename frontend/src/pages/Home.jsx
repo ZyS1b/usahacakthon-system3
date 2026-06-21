@@ -157,13 +157,40 @@ function StarRating({ rating }) {
   )
 }
 
-export default function Home({ onResults }) {
+export default function Home({ onResults, scrollTarget, onScrollTargetHandled }) {
   const { language } = useLanguage()
   const fil = language === 'fil'
   const [showForm, setShowForm] = useState(false)
+
+  useEffect(() => {
+    document.documentElement.classList.add('eligibility-scroll')
+    return () => document.documentElement.classList.remove('eligibility-scroll')
+  }, [])
+
+  useEffect(() => {
+    if (!scrollTarget) return
+    setShowForm(false)
+
+    const scrollToTarget = () => {
+      if (scrollTarget === 'top') {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      } else {
+        const el = document.getElementById(scrollTarget)
+        if (el) {
+          const navOffset = 64
+          const top = el.getBoundingClientRect().top + window.scrollY - navOffset
+          window.scrollTo({ top, behavior: 'smooth' })
+        }
+      }
+      onScrollTargetHandled?.()
+    }
+
+    const timer = window.setTimeout(scrollToTarget, 160)
+    return () => window.clearTimeout(timer)
+  }, [scrollTarget, onScrollTargetHandled])
   const { scrollYProgress } = useScroll()
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0])
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0.92])
+  const heroScale = useTransform(scrollYProgress, [0, 0.85], [1, 0.99])
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -213,7 +240,7 @@ export default function Home({ onResults }) {
           {/* ════════════════════════════════════════ */}
           <motion.section
             style={{ opacity: heroOpacity, scale: heroScale }}
-            className="relative min-h-[90vh] flex items-center justify-center px-4 sm:px-6 pt-28 pb-20 overflow-hidden"
+            className="snap-section relative min-h-[calc(100vh-64px)] flex items-center justify-center px-4 sm:px-6 pt-20 pb-16 overflow-hidden"
           >
             {/* Animated background */}
             <FloatingParticles />
@@ -301,8 +328,7 @@ export default function Home({ onResults }) {
                 </motion.button>
                 <motion.button
                   onClick={() => {
-                    const el = document.querySelector('.hero-visual-card')
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                   }}
                   className="btn-secondary text-[17px] px-8 min-h-[58px] w-full sm:w-auto"
                   whileHover={{ scale: 1.03, y: -1 }}
@@ -336,112 +362,141 @@ export default function Home({ onResults }) {
                   </motion.div>
                 ))}
               </motion.div>
-
-              {/* ── Hero Visual Card ── */}
-              <motion.div
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-                className="mt-16 max-w-md mx-auto"
-                whileHover={{ y: -4 }}
-              >
-                <div className="card-glass p-6 sm:p-8 text-left relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-500/5 to-transparent rounded-bl-full" />
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#007AFF] to-[#5856D6] flex items-center justify-center shadow-lg shadow-primary/20">
-                      <span className="text-white font-black text-xl">T</span>
-                    </div>
-                    <div>
-                      <p className="font-bold text-ink text-lg tracking-tight">TulongAI</p>
-                      <p className="text-sm text-secondary">Eligibility Checker</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 mb-5">
-                    {[
-                      { label: fil ? 'Edad' : 'Age', value: '32', icon: Clock },
-                      { label: fil ? 'Buwanang Kita' : 'Monthly Income', value: '₱12,000', icon: TrendingUp },
-                      { label: fil ? 'Sambahayan' : 'Household', value: '5 miyembro', icon: Users },
-                    ].map((item, i) => (
-                      <motion.div
-                        key={i}
-                        className="flex items-center justify-between p-3.5 rounded-xl"
-                        style={{ background: 'rgba(0,0,0,0.03)' }}
-                        whileHover={{ background: 'rgba(0,122,255,0.04)' }}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <item.icon size={14} className="text-secondary" />
-                          <span className="text-sm text-secondary font-medium">{item.label}</span>
-                        </div>
-                        <span className="text-sm font-bold text-ink">{item.value}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  <motion.div
-                    className="p-4 rounded-2xl relative overflow-hidden"
-                    style={{ background: 'rgba(52,199,89,0.08)', border: '1px solid rgba(52,199,89,0.2)' }}
-                    whileHover={{ background: 'rgba(52,199,89,0.12)' }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <motion.div
-                        className="w-9 h-9 rounded-xl bg-success/20 flex items-center justify-center"
-                        animate={{ rotate: [0, 10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                      >
-                        <CheckCircle size={18} className="text-success" />
-                      </motion.div>
-                      <div>
-                        <p className="text-sm font-bold text-success">
-                          {fil ? 'Karapat-dapat sa 2 programa' : 'Eligible for 2 programs'}
-                        </p>
-                        <p className="text-xs text-secondary mt-0.5">
-                          {fil ? '4Ps at PhilHealth' : '4Ps & PhilHealth'}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                </div>
-              </motion.div>
             </div>
           </motion.section>
 
           {/* ════════════════════════════════════════ */}
-          {/* STATS SECTION */}
+          {/* IMPACT SNAPSHOT SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section className="py-16 px-4 sm:px-6">
-            <div className="max-w-5xl mx-auto">
+          <section className="snap-section min-h-[calc(100vh-64px)] px-4 sm:px-6 py-10 sm:py-12 flex items-center">
+            <div className="max-w-6xl mx-auto w-full">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+                viewport={{ once: true, amount: 0.35 }}
+                transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                className="rounded-[2rem] border border-blue-900/10 bg-white/85 shadow-2xl shadow-blue-950/8 backdrop-blur-xl p-5 sm:p-7 lg:p-8 overflow-hidden relative"
               >
-                {STATS.map((stat, i) => {
-                  const Icon = stat.icon
-                  return (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1, duration: 0.5 }}
-                      whileHover={{ y: -4 }}
-                      className="card-hover p-6 text-center"
-                    >
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/10 to-violet-500/10 flex items-center justify-center mx-auto mb-4">
-                        <Icon size={22} className="text-primary" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(29,78,216,0.10),transparent_32%),radial-gradient(circle_at_85%_80%,rgba(67,56,202,0.10),transparent_34%)] pointer-events-none" />
+                <div className="relative z-10 grid gap-7 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+                  <div>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-blue-700/15 bg-blue-700/8 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">
+                      <BarChart3 size={13} />
+                      {fil ? 'Live Preview' : 'Eligibility Snapshot'}
+                    </span>
+                    <h2 className="mt-4 text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-ink leading-tight">
+                      {fil ? 'Isang malinaw na dashboard pagkatapos ng pagsusuri.' : 'A clearer result screen after one guided check.'}
+                    </h2>
+                    <p className="mt-4 text-secondary text-base sm:text-lg leading-relaxed max-w-xl">
+                      {fil
+                        ? 'Pinagsasama ng TulongAI ang mabilis na pagsusuri, plain-language reasoning, at practical next steps para hindi magtapos sa listahan lamang ang user.'
+                        : 'TulongAI combines quick screening, plain-language reasoning, and practical next steps so the user receives more than a list of programs.'}
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-3 mt-6">
+                      {STATS.map((stat, i) => {
+                        const Icon = stat.icon
+                        return (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 14 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.06, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                            className="rounded-2xl border border-slate-200/80 bg-white p-4 text-left shadow-sm"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-700/10 to-indigo-700/10 flex items-center justify-center">
+                                <Icon size={18} className="text-blue-700" />
+                              </div>
+                              <div>
+                                <p className="text-2xl font-black text-ink leading-none tracking-tight">
+                                  <AnimatedCounter value={stat.value} />
+                                </p>
+                                <p className="text-xs sm:text-sm text-secondary font-medium mt-1">
+                                  {stat.label[language] || stat.label.en}
+                                </p>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 22 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.35 }}
+                    transition={{ delay: 0.12, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                    className="max-w-md mx-auto w-full"
+                    whileHover={{ y: -4 }}
+                  >
+                    <div className="card-glass p-5 sm:p-6 text-left relative overflow-hidden border border-white/70 shadow-xl shadow-blue-950/10">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-600/10 to-transparent rounded-bl-full" />
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-700/20">
+                          <span className="text-white font-black text-xl">T</span>
+                        </div>
+                        <div>
+                          <p className="font-bold text-ink text-lg tracking-tight">TulongAI</p>
+                          <p className="text-sm text-secondary">Eligibility Checker</p>
+                        </div>
                       </div>
-                      <p className="text-3xl font-black text-ink mb-1 tracking-tight">
-                        <AnimatedCounter value={stat.value} />
-                      </p>
-                      <p className="text-sm text-secondary font-medium">
-                        {stat.label[language] || stat.label.en}
-                      </p>
-                    </motion.div>
-                  )
-                })}
+
+                      <div className="space-y-3 mb-4">
+                        {[
+                          { label: fil ? 'Edad' : 'Age', value: '32', icon: Clock },
+                          { label: fil ? 'Buwanang Kita' : 'Monthly Income', value: '₱12,000', icon: TrendingUp },
+                          { label: fil ? 'Sambahayan' : 'Household', value: '5 miyembro', icon: Users },
+                        ].map((item, i) => (
+                          <motion.div
+                            key={i}
+                            className="flex items-center justify-between p-3.5 rounded-xl bg-slate-100/80"
+                            whileHover={{ backgroundColor: 'rgba(219,234,254,0.85)' }}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <item.icon size={14} className="text-secondary" />
+                              <span className="text-sm text-secondary font-medium">{item.label}</span>
+                            </div>
+                            <span className="text-sm font-bold text-ink">{item.value}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+
+                      <motion.div
+                        className="p-4 rounded-2xl relative overflow-hidden bg-emerald-50 border border-emerald-200"
+                        whileHover={{ scale: 1.01 }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <motion.div
+                            className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center"
+                            animate={{ rotate: [0, 10, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                          >
+                            <CheckCircle size={18} className="text-emerald-600" />
+                          </motion.div>
+                          <div>
+                            <p className="text-sm font-bold text-emerald-700">
+                              {fil ? 'May qualify sa 2 programa' : 'May qualify for 2 programs'}
+                            </p>
+                            <p className="text-xs text-secondary mt-0.5">
+                              {fil ? '4Ps at PhilHealth • I-verify sa ahensya' : '4Ps & PhilHealth • Verify with agency'}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                        {[fil ? 'Reasoning' : 'Reasoning', fil ? 'Docs' : 'Docs', fil ? 'Next step' : 'Next step'].map((label) => (
+                          <div key={label} className="rounded-xl bg-white/70 border border-slate-200/70 px-2 py-2">
+                            <p className="text-[11px] font-bold text-blue-700">{label}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
               </motion.div>
             </div>
           </section>
@@ -449,7 +504,7 @@ export default function Home({ onResults }) {
           {/* ════════════════════════════════════════ */}
           {/* FEATURES SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section className="py-24 px-4 sm:px-6" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+          <section id="how-it-works" className="snap-section min-h-[calc(100vh-64px)] py-24 px-4 sm:px-6 flex items-center scroll-mt-16" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
             <div className="max-w-5xl mx-auto">
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -527,7 +582,7 @@ export default function Home({ onResults }) {
           {/* ════════════════════════════════════════ */}
           {/* PROGRAMS SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section className="py-24 px-4 sm:px-6 relative overflow-hidden" style={{ background: 'rgba(0,0,0,0.02)' }}>
+          <section className="snap-section min-h-[calc(100vh-64px)] py-24 px-4 sm:px-6 relative overflow-hidden flex items-center" style={{ background: 'rgba(0,0,0,0.02)' }}>
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/30 to-transparent pointer-events-none" />
             <div className="max-w-5xl mx-auto relative z-10">
               <motion.div
@@ -613,7 +668,7 @@ export default function Home({ onResults }) {
           {/* ════════════════════════════════════════ */}
           {/* TESTIMONIALS SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section className="py-24 px-4 sm:px-6">
+          <section className="snap-section min-h-[calc(100vh-64px)] py-24 px-4 sm:px-6 flex items-center">
             <div className="max-w-5xl mx-auto">
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
@@ -676,9 +731,68 @@ export default function Home({ onResults }) {
           </section>
 
           {/* ════════════════════════════════════════ */}
+          {/* MISSION SECTION */}
+          {/* ════════════════════════════════════════ */}
+          <section id="mission" className="snap-section min-h-[calc(100vh-64px)] py-24 px-4 sm:px-6 flex items-center bg-slate-950 text-white scroll-mt-16">
+            <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.55, ease: [0.25, 0.1, 0.25, 1] }}
+              >
+                <span className="inline-flex items-center gap-2 rounded-full border border-blue-300/30 bg-blue-400/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-blue-200">
+                  {fil ? 'Misyon' : 'Mission'}
+                </span>
+                <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+                  {fil ? 'Gawing malinaw ang sistemang pampubliko.' : 'Turn confusing public systems into clear next steps.'}
+                </h2>
+                <p className="mt-5 text-lg leading-8 text-slate-300">
+                  {fil
+                    ? 'TulongAI ay ginawa para sa mga pamilyang kailangang maintindihan ang mga benepisyo nang mabilis, ligtas, at walang teknikal na jargon.'
+                    : 'TulongAI helps Filipino families understand support programs through guided questions, plain-language reasoning, and practical next actions.'}
+                </p>
+              </motion.div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {[
+                  {
+                    title: fil ? 'Hindi ito final decision' : 'No final decisions',
+                    text: fil ? 'Gumagamit ito ng “may qualify” language at nire-refer pa rin ang user sa opisyal na ahensya.' : 'The app uses “may qualify” framing and still directs users to official agencies for verification.',
+                  },
+                  {
+                    title: fil ? 'May reasoning trace' : 'Visible reasoning trace',
+                    text: fil ? 'Ipinapakita kung bakit tugma o hindi tugma ang isang programa sa sitwasyon ng user.' : 'Users can see why a program may or may not match their household situation.',
+                  },
+                  {
+                    title: fil ? 'Human-in-the-loop' : 'Human-in-the-loop',
+                    text: fil ? 'Ang caseworker o opisyal pa rin ang dapat mag-verify ng dokumento at kasalukuyang patakaran.' : 'A caseworker or agency officer remains responsible for document checks and current policy interpretation.',
+                  },
+                  {
+                    title: fil ? 'Walang dead end' : 'No dead ends',
+                    text: fil ? 'Kapag hindi tugma ang programa, nagbibigay pa rin ito ng NGO o community-based next steps.' : 'When a program does not match, the user still receives NGO or community-based next steps.',
+                  },
+                ].map((item) => (
+                  <motion.div
+                    key={item.title}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.45 }}
+                    className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/20 backdrop-blur"
+                  >
+                    <p className="text-base font-extrabold text-white">{item.title}</p>
+                    <p className="mt-3 text-sm leading-6 text-slate-300">{item.text}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ════════════════════════════════════════ */}
           {/* FINAL CTA SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section className="py-24 px-4 sm:px-6 relative overflow-hidden">
+          <section className="snap-section min-h-[calc(100vh-64px)] py-24 px-4 sm:px-6 relative overflow-hidden flex items-center">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600" />
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
             <div className="max-w-3xl mx-auto text-center relative z-10">

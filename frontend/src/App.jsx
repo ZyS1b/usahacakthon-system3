@@ -5,12 +5,14 @@ import USAChat from './components/USAChat'
 import ChatPage from './pages/ChatPage'
 import Home from './pages/Home'
 import Results from './pages/Results'
+import Footer from './components/layout/Footer'
 import { LanguageProvider } from './context/LanguageContext'
 
 export default function App() {
   const [results, setResults] = useState(null)
   const [formData, setFormData] = useState(null)
   const [view, setView] = useState('chat')
+  const [homeScrollTarget, setHomeScrollTarget] = useState(null)
 
   const handleResults = (data, form) => {
     setResults(data)
@@ -18,11 +20,17 @@ export default function App() {
     setView('results')
   }
 
-  const handleCheckEligibility = () => {
+  const goHomeSection = (target = 'top') => {
     setView('home')
     setResults(null)
     setFormData(null)
+    setHomeScrollTarget(null)
+    window.requestAnimationFrame(() => setHomeScrollTarget(target))
   }
+
+  const handleCheckEligibility = () => goHomeSection('top')
+
+  const handleHowItWorks = () => goHomeSection('how-it-works')
 
   const handleBackToChat = () => {
     setView('chat')
@@ -46,6 +54,7 @@ export default function App() {
           currentView={view}
           onChatClick={() => setView('chat')}
           onCheckEligibility={handleCheckEligibility}
+          onHowItWorks={handleHowItWorks}
         />
 
         <main className="flex-1">
@@ -61,6 +70,8 @@ export default function App() {
               <Home
                 key="home"
                 onResults={handleResults}
+                scrollTarget={homeScrollTarget}
+                onScrollTargetHandled={() => setHomeScrollTarget(null)}
               />
             ) : (
               <ChatPage
@@ -71,8 +82,9 @@ export default function App() {
           </AnimatePresence>
         </main>
 
-        {/* Floating AI Chat Widget — available everywhere */}
-        <USAChat />
+        {view !== 'chat' && <Footer />}
+
+        {view !== 'chat' && <USAChat />}
       </div>
     </LanguageProvider>
   )
