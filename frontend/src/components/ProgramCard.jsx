@@ -60,7 +60,7 @@ export default function ProgramCard({ program, index = 0 }) {
               >
                 <CheckCircle2 size={12} style={{ color: '#10B981' }} />
                 <span className="text-[11px] font-bold" style={{ color: '#10B981' }}>
-                  {fil ? 'Karapat-dapat' : 'Qualified'}
+                  {fil ? 'Maaaring Kwalipikado' : 'May Qualify'}
                 </span>
               </div>
             ) : gaps?.length > 0 ? (
@@ -80,7 +80,7 @@ export default function ProgramCard({ program, index = 0 }) {
               >
                 <XCircle size={12} style={{ color: '#EF4444' }} />
                 <span className="text-[11px] font-bold" style={{ color: '#EF4444' }}>
-                  {fil ? 'Hindi' : 'Not Eligible'}
+                  {fil ? 'Maaaring Hindi' : 'May Not Qualify Yet'}
                 </span>
               </div>
             )}

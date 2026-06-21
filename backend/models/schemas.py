@@ -29,6 +29,7 @@ class ProgramResult(BaseModel):
     description: str
     benefits: str
     office: Optional[str] = None
+    source: Optional[str] = None
     ngo_alternatives: List[Dict[str, str]] = []
 
 

@@ -52,6 +52,7 @@ def check_4ps_eligibility(req: EligibilityRequest) -> ProgramResult:
         description=config["description"],
         benefits=config["benefits"],
         office=config["office"],
+        source=config["source"],
     )
 
 
@@ -73,6 +74,7 @@ def check_philhealth_eligibility(req: EligibilityRequest) -> ProgramResult:
             description=config["description"],
             benefits=config["benefits"],
             office=config["office"],
+        source=config["source"],
         )
 
     if req.employment_status == "employed":
@@ -97,6 +99,7 @@ def check_philhealth_eligibility(req: EligibilityRequest) -> ProgramResult:
         description=config["description"],
         benefits=config["benefits"],
         office=config["office"],
+        source=config["source"],
     )
 
 
@@ -135,6 +138,7 @@ def check_tupad_eligibility(req: EligibilityRequest) -> ProgramResult:
         description=config["description"],
         benefits=config["benefits"],
         office=config["office"],
+        source=config["source"],
     )
 
 
@@ -156,6 +160,7 @@ def check_sss_eligibility(req: EligibilityRequest) -> ProgramResult:
             description=config["description"],
             benefits=config["benefits"],
             office=config["office"],
+        source=config["source"],
         )
 
     if req.age < 18:
@@ -181,6 +186,7 @@ def check_sss_eligibility(req: EligibilityRequest) -> ProgramResult:
         description=config["description"],
         benefits=config["benefits"],
         office=config["office"],
+        source=config["source"],
     )
 
 

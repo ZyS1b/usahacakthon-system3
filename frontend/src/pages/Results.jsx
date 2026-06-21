@@ -37,11 +37,11 @@ export default function Results({ data, form, onBack }) {
 
   const summaryText = hasEligible
     ? (fil
-        ? 'Karapat-dapat ka sa ' + eligibleCount + ' sa ' + totalCount + ' programa.'
-        : 'You qualify for ' + eligibleCount + ' out of ' + totalCount + ' programs checked.')
+        ? 'Maaaring kwalipikado ka sa ' + eligibleCount + ' sa ' + totalCount + ' programa, batay sa paunang pagsusuri.'
+        : 'You may qualify for ' + eligibleCount + ' out of ' + totalCount + ' programs checked, based on this screening.')
     : (fil
-        ? 'Hindi ka karapat-dapat sa mga programa ngayon, ngunit may iba pang tulong.'
-        : "You don't qualify right now, but other help is available.")
+        ? 'Walang malinaw na tugma ang paunang pagsusuri ngayon, ngunit may iba pang tulong.'
+        : "This screening didn't find a clear match right now, but other help is available.")
 
   return (
     <div className="min-h-screen bg-bg">

@@ -62,9 +62,11 @@ def build_reasoning_trace(req: EligibilityRequest, results: List[ProgramResult])
         trace.append("Existing SSS: Yes")
 
     trace.append("---")
+    trace.append("Note: results below are a preliminary screening, not an official determination. Always confirm with the responsible agency before relying on this.")
+    trace.append("---")
 
     for result in results:
-        status = "✅ ELIGIBLE" if result.eligible else "❌ NOT ELIGIBLE"
+        status = "✅ YOU MAY QUALIFY" if result.eligible else "❌ YOU MAY NOT CURRENTLY QUALIFY"
         trace.append(f"{result.name}: {status} (confidence: {result.confidence:.0%})")
         for gap in result.gaps:
             trace.append(f"  • {gap}")
