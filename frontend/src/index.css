@@ -590,12 +590,17 @@
 }
 @layer utilities {
   .landing-scroll {
-    scroll-padding-top: 0;
+    scroll-padding-top: 64px;
   }
 
   .chat-scroll {
     scroll-snap-type: y proximity;
     scroll-padding: 16px;
+  }
+
+  .snap-section {
+    scroll-snap-align: center;
+    scroll-snap-stop: normal;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -609,34 +614,13 @@
 
 @layer base {
   html.eligibility-scroll {
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: y proximity;
     scroll-padding-top: 64px;
+    scroll-behavior: smooth;
   }
 
   html.eligibility-scroll body {
     background: #F3F7FB;
-  }
-}
-
-@layer utilities {
-  .snap-section {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-}
-
-@layer utilities {
-  .snap-section {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-}
-
-@layer base {
-  html.eligibility-scroll {
-    scroll-snap-type: y mandatory;
-    scroll-padding-top: 64px;
-    scroll-behavior: smooth;
   }
 
   @media (prefers-reduced-motion: reduce) {

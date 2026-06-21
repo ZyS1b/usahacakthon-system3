@@ -168,6 +168,81 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
   }, [])
 
   useEffect(() => {
+    if (showForm) return
+
+    let animating = false
+    let lastWheelAt = 0
+    const headerOffset = 64
+    const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+
+    const getTargetTop = (section) => {
+      const available = window.innerHeight - headerOffset
+      const rect = section.getBoundingClientRect()
+      const rawTop = window.scrollY + rect.top - headerOffset
+      const centeredTop = rawTop - Math.max(0, (available - rect.height) / 2)
+      const maxTop = document.documentElement.scrollHeight - window.innerHeight
+      return Math.max(0, Math.min(centeredTop, maxTop))
+    }
+
+    const animateScroll = (targetTop) => {
+      animating = true
+      const startTop = window.scrollY
+      const distance = targetTop - startTop
+      const duration = 780
+      const startedAt = performance.now()
+
+      const step = (now) => {
+        const elapsed = now - startedAt
+        const progress = Math.min(1, elapsed / duration)
+        window.scrollTo(0, startTop + distance * easeInOutCubic(progress))
+        if (progress < 1) {
+          requestAnimationFrame(step)
+        } else {
+          animating = false
+        }
+      }
+
+      requestAnimationFrame(step)
+    }
+
+    const onWheel = (event) => {
+      if (window.innerWidth < 768 || Math.abs(event.deltaY) < 18 || event.ctrlKey) return
+      const now = Date.now()
+      if (animating || now - lastWheelAt < 520) {
+        event.preventDefault()
+        return
+      }
+
+      const sections = [...document.querySelectorAll('.snap-section')]
+      if (!sections.length) return
+
+      const viewportCenter = window.scrollY + headerOffset + (window.innerHeight - headerOffset) / 2
+      let currentIndex = 0
+      let smallestDistance = Infinity
+
+      sections.forEach((section, index) => {
+        const center = section.offsetTop + section.offsetHeight / 2
+        const distance = Math.abs(center - viewportCenter)
+        if (distance < smallestDistance) {
+          smallestDistance = distance
+          currentIndex = index
+        }
+      })
+
+      const direction = event.deltaY > 0 ? 1 : -1
+      const nextIndex = currentIndex + direction
+      if (nextIndex < 0 || nextIndex >= sections.length) return
+
+      event.preventDefault()
+      lastWheelAt = now
+      animateScroll(getTargetTop(sections[nextIndex]))
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: false })
+    return () => window.removeEventListener('wheel', onWheel)
+  }, [showForm])
+
+  useEffect(() => {
     if (!scrollTarget) return
     setShowForm(false)
 
@@ -240,7 +315,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
           {/* ════════════════════════════════════════ */}
           <motion.section
             style={{ opacity: heroOpacity, scale: heroScale }}
-            className="snap-section relative min-h-[calc(100vh-64px)] flex items-center justify-center px-4 sm:px-6 pt-20 pb-16 overflow-hidden"
+            className="snap-section relative min-h-[calc(100vh-64px)] flex items-center justify-center px-4 sm:px-6 py-10 overflow-hidden"
           >
             {/* Animated background */}
             <FloatingParticles />
@@ -368,7 +443,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
           {/* ════════════════════════════════════════ */}
           {/* IMPACT SNAPSHOT SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section className="snap-section min-h-[calc(100vh-64px)] px-4 sm:px-6 py-10 sm:py-12 flex items-center">
+          <section className="snap-section min-h-[calc(100vh-64px)] px-4 sm:px-6 py-8 flex items-center">
             <div className="max-w-6xl mx-auto w-full">
               <motion.div
                 initial={{ opacity: 0, y: 18 }}
@@ -504,14 +579,14 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
           {/* ════════════════════════════════════════ */}
           {/* FEATURES SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section id="how-it-works" className="snap-section min-h-[calc(100vh-64px)] py-24 px-4 sm:px-6 flex items-center scroll-mt-16" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
+          <section id="how-it-works" className="snap-section min-h-[calc(100vh-64px)] py-10 px-4 sm:px-6 flex items-center scroll-mt-16" style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
             <div className="max-w-5xl mx-auto">
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-                className="text-center mb-16"
+                className="text-center mb-10"
               >
                 <motion.span
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -535,7 +610,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
                 </p>
               </motion.div>
 
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-3 gap-5">
                 {FEATURES.map((feature, i) => {
                   const Icon = feature.icon
                   return (
@@ -546,7 +621,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
                       viewport={{ once: true }}
                       transition={{ delay: i * 0.1, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
                       whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                      className="card-hover p-8 relative overflow-hidden group"
+                      className="card-hover p-7 relative overflow-hidden group"
                     >
                       <div
                         className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -582,7 +657,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
           {/* ════════════════════════════════════════ */}
           {/* PROGRAMS SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section className="snap-section min-h-[calc(100vh-64px)] py-24 px-4 sm:px-6 relative overflow-hidden flex items-center" style={{ background: 'rgba(0,0,0,0.02)' }}>
+          <section className="snap-section min-h-[calc(100vh-64px)] py-10 px-4 sm:px-6 relative overflow-hidden flex items-center" style={{ background: 'rgba(0,0,0,0.02)' }}>
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-50/30 to-transparent pointer-events-none" />
             <div className="max-w-5xl mx-auto relative z-10">
               <motion.div
@@ -590,7 +665,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-                className="text-center mb-16"
+                className="text-center mb-10"
               >
                 <motion.span
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -623,7 +698,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.08, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
                     whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                    className="card-hover p-8 text-center relative overflow-hidden group"
+                    className="card-hover p-6 text-center relative overflow-hidden group"
                   >
                     <div className={`absolute inset-0 bg-gradient-to-b ${p.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
                     <div
@@ -650,7 +725,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3, duration: 0.5 }}
-                className="mt-14 text-center"
+                className="mt-8 text-center"
               >
                 <motion.button
                   onClick={() => setShowForm(true)}
@@ -668,14 +743,14 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
           {/* ════════════════════════════════════════ */}
           {/* TESTIMONIALS SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section className="snap-section min-h-[calc(100vh-64px)] py-24 px-4 sm:px-6 flex items-center">
+          <section className="snap-section min-h-[calc(100vh-64px)] py-10 px-4 sm:px-6 flex items-center">
             <div className="max-w-5xl mx-auto">
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-                className="text-center mb-16"
+                className="text-center mb-10"
               >
                 <motion.span
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -699,7 +774,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
                 </p>
               </motion.div>
 
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-3 gap-5">
                 {TESTIMONIALS.map((testimonial, i) => (
                   <motion.div
                     key={i}
@@ -708,7 +783,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1, duration: 0.5 }}
                     whileHover={{ y: -4 }}
-                    className="card-hover p-6 relative"
+                    className="card-hover p-5 relative"
                   >
                     <div className="absolute top-4 right-4 text-4xl text-gray-100 font-serif leading-none">"</div>
                     <StarRating rating={testimonial.rating} />
@@ -733,7 +808,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
           {/* ════════════════════════════════════════ */}
           {/* MISSION SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section id="mission" className="snap-section min-h-[calc(100vh-64px)] py-24 px-4 sm:px-6 flex items-center bg-slate-950 text-white scroll-mt-16">
+          <section id="mission" className="snap-section min-h-[calc(100vh-64px)] py-10 px-4 sm:px-6 flex items-center bg-slate-950 text-white scroll-mt-16">
             <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
               <motion.div
                 initial={{ opacity: 0, y: 18 }}
@@ -779,7 +854,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.45 }}
-                    className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/20 backdrop-blur"
+                    className="rounded-3xl border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/20 backdrop-blur"
                   >
                     <p className="text-base font-extrabold text-white">{item.title}</p>
                     <p className="mt-3 text-sm leading-6 text-slate-300">{item.text}</p>
@@ -792,7 +867,7 @@ export default function Home({ onResults, scrollTarget, onScrollTargetHandled })
           {/* ════════════════════════════════════════ */}
           {/* FINAL CTA SECTION */}
           {/* ════════════════════════════════════════ */}
-          <section className="snap-section min-h-[calc(100vh-64px)] py-24 px-4 sm:px-6 relative overflow-hidden flex items-center">
+          <section className="snap-section min-h-[calc(100vh-64px)] py-10 px-4 sm:px-6 relative overflow-hidden flex items-center">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600" />
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
             <div className="max-w-3xl mx-auto text-center relative z-10">

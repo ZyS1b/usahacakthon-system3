@@ -45,7 +45,7 @@ export default function Results({ data, form, onBack }) {
 
   return (
     <div className="min-h-screen bg-bg">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-28 pb-16">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-16">
 
         {/* Back button */}
         <motion.button
@@ -53,7 +53,7 @@ export default function Results({ data, form, onBack }) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:text-ink transition-colors min-h-[44px] mb-8 focus:outline-none"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:text-ink transition-colors min-h-[44px] mb-5 focus:outline-none"
         >
           <ArrowLeft size={16} />
           {fil ? 'Bagong Pagsusuri' : 'New Check'}
