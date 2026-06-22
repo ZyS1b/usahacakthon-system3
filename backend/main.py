@@ -16,9 +16,22 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Comma-separated list of extra allowed origins (e.g. your GitHub Pages URL),
+# settable via env var so you don't have to hardcode/redeploy when it changes.
+_extra_origins = [
+    o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        # TODO: replace with your actual GitHub Pages URL, e.g.
+        # "https://YOUR_USERNAME.github.io"
+        "https://YOUR_USERNAME.github.io",
+        *_extra_origins,
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
