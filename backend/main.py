@@ -29,7 +29,7 @@ app.add_middleware(
         "http://localhost:3000",
         # TODO: replace with your actual GitHub Pages URL, e.g.
         # "https://YOUR_USERNAME.github.io"
-        "https://YOUR_USERNAME.github.io",
+        "https://zys1b.github.io",
         *_extra_origins,
     ],
     allow_credentials=True,
