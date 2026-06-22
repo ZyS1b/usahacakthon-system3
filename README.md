@@ -2,7 +2,17 @@
 
 A structured reasoning engine that evaluates Filipino government benefit eligibility across multiple programs simultaneously, explains every decision step in plain language, and tells the user exactly what to do next.
 
-Built for the hackathon idea: *"The DSWD website was built for caseworkers who already understand the system. TulongAI was built for Maria in Caloocan, who has four kids, just lost household income, and one hour before school pickup."*
+> Built for the hackathon idea: *"The DSWD website was built for caseworkers who already understand the system. TulongAI was built for Maria in Caloocan, who has four kids, just lost household income, and one hour before school pickup."*
+
+## Table of contents
+
+- [What it does](#what-it-does)
+- [Project structure](#project-structure)
+- [Tech stack](#tech-stack)
+- [Quick start](#quick-start)
+- [Environment variables](#environment-variables)
+- [Deployment](#deployment)
+- [Team notes](#team-notes)
 
 ## What it does
 
@@ -18,22 +28,34 @@ Built for the hackathon idea: *"The DSWD website was built for caseworkers who a
 
 ```
 tulong-ai/
-|-- backend/      <- FastAPI + Python (rules engine, AI chat, eligibility API)
-|-- frontend/     <- Vite + React + Tailwind (UI)
-|-- .env.example  <- template for API keys / secrets
-|-- .env          <- your local secrets (never commit this)
-`-- README.md     <- you are here
+|-- backend/         <- FastAPI + Python (rules engine, AI chat, eligibility API)
+|                        See backend/README.md
+|-- frontend/        <- Vite + React + Tailwind (UI)
+|                        See frontend/README.md
+|-- .env.example     <- template for API keys / secrets
+|-- .env             <- your local secrets (never commit this)
+`-- README.md        <- you are here
 ```
 
-See `backend/README.md` and `frontend/README.md` for setup instructions specific to each half of the app.
+Each half of the app has its own README with setup instructions specific to it: [`backend/README.md`](backend/README.md) and [`frontend/README.md`](frontend/README.md).
 
-## Quick start (both halves)
+## Tech stack
 
-You need **two terminals running at once** — backend and frontend are separate processes.
+| Layer | Tech |
+|---|---|
+| Frontend | Vite, React, Tailwind CSS, Framer Motion |
+| Backend | Python, FastAPI, Uvicorn |
+| AI | Any OpenAI-compatible API (Groq used for free tier) |
+| Auth | JWT (python-jose) + bcrypt (passlib) |
 
-**Terminal 1 — backend:**
+> Note: `react-router-dom` is listed as a frontend dependency but isn't currently used — the app switches views with React state in `App.jsx` rather than URL routing.
+
+## Quick start
+
+You need **two terminals running at once** — backend and frontend are separate processes. Full details (venv setup, getting an API key, etc.) live in each subfolder's README; this is the short version.
+
+**Terminal 1 — backend** (from the project root):
 ```bash
-cd backend
 # see backend/README.md for full venv + install steps
 uvicorn backend.main:app --reload --port 8000
 ```
@@ -49,15 +71,6 @@ Runs at `http://localhost:5173` and proxies `/api/*` requests to the backend aut
 
 **Both must be running simultaneously** for the app to work — the frontend has no logic of its own; all eligibility checking and AI chat happens through the backend API.
 
-## Tech stack
-
-| Layer | Tech |
-|---|---|
-| Frontend | Vite, React, Tailwind CSS, Framer Motion, React Router |
-| Backend | Python, FastAPI, Uvicorn |
-| AI | Any OpenAI-compatible API (Groq used for free tier) |
-| Auth | JWT (python-jose) + bcrypt (passlib) |
-
 ## Environment variables
 
 Copy `.env.example` to `.env` at the project root and fill in:
@@ -69,7 +82,18 @@ AI_MODEL=llama-3.3-70b-versatile
 SECRET_KEY=any-random-long-string
 ```
 
-We use **Groq** (free tier, OpenAI-compatible) for the AI features — see `backend/README.md` for how to get a free key.
+We use **Groq** (free tier, OpenAI-compatible) for the AI features — see [`backend/README.md`](backend/README.md#environment-variables) for how to get a free key.
+
+## Deployment
+
+This is a split deployment: a static frontend and a separately hosted backend, since GitHub Pages can only serve static files.
+
+| Part | Hosted on | Notes |
+|---|---|---|
+| Frontend | GitHub Pages | Auto-deployed by `.github/workflows/deploy.yml` on every push to `main` |
+| Backend | Render | Run from repo root: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT` |
+
+See the **Deployment** section in [`frontend/README.md`](frontend/README.md#deployment) and [`backend/README.md`](backend/README.md#deployment) for the full setup, including CORS and the `VITE_API_BASE_URL` wiring between the two.
 
 ## Team notes
 
